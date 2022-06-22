@@ -21,11 +21,18 @@ export const NewEntry = () => {
 
   const onSave = () => {
     if ( inputValue.length === 0 ) return;
+      
+      addNewEntry(inputValue);
+      setIsAddingEntry( false );
+      setTouched( false );
+      setInputValue('');
 
-    addNewEntry(inputValue);
-    setInputValue('');
-    setIsAddingEntry( false );
+  }
+
+  const onCancel = () => {
+    setIsAddingEntry(false);
     setTouched( false );
+    setInputValue('');
   }
 
   return (
@@ -51,7 +58,7 @@ export const NewEntry = () => {
             <Box display='flex' justifyContent='space-between'>
               <Button
                 variant='text'
-                onClick={ () => setIsAddingEntry(false) }
+                onClick={ onCancel }
               >
                 Cancel
               </Button>
