@@ -7,4 +7,4 @@ export interface Entry {
   status: EntryStatus;
 }
 
-export type EntryStatus = 'pending' | 'in-pprogress' | 'finished';
+export type EntryStatus = 'pending' | 'in-progress' | 'finished';

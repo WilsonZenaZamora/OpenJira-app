@@ -1,3 +1,5 @@
+// Logic to conection to db in MongoDB
+
 import mongoose from "mongoose";
 
 /**
@@ -17,7 +19,6 @@ export const connect = async() => {
     console.log('Ya estamos conectados');
     return;
   }
-
   if ( mongoose.connections.length > 0 ) {
     mongooConnection.isConnected = mongoose.connections[0].readyState;
 
@@ -25,16 +26,16 @@ export const connect = async() => {
       console.log('Usando conexión anterior');
       return;
     }
-
     await mongoose.disconnect();
   }
-
   await mongoose.connect( process.env.MONGO_URL || '' );
   mongooConnection.isConnected = 1;
   console.log('Conectado a MongoDB:',  process.env.MONGO_URL );
 }
 
 export const disconect = async() => {
+
+  if ( process.env.NODE_ENV === 'development' ) return;
 
   if ( mongooConnection.isConnected === 0 ) return;
 
