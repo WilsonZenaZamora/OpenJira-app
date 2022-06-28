@@ -1,4 +1,4 @@
-// Logic to conection to db in MongoDB
+// Logic to conection db in MongoDB
 
 import mongoose from "mongoose";
 
@@ -16,7 +16,7 @@ const mongooConnection = {
 export const connect = async() => {
   
   if ( mongooConnection.isConnected ) {
-    console.log('Ya estamos conectados');
+    console.log('Ya estabamos conectados');
     return;
   }
   if ( mongoose.connections.length > 0 ) {
@@ -33,7 +33,7 @@ export const connect = async() => {
   console.log('Conectado a MongoDB:',  process.env.MONGO_URL );
 }
 
-export const disconect = async() => {
+export const disconnect = async() => {
 
   if ( process.env.NODE_ENV === 'development' ) return;
 

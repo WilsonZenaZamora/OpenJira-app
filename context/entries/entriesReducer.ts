@@ -28,11 +28,11 @@ export const entriesReducer = ( state: EntriesState, action: EntriesActionType )
         })
       }
 
-      case '[Entry] - Refresh-Data':
-        return {
-          ...state,
-          entries: [...action.payload]
-        }
+    case '[Entry] - Refresh-Data':
+      return {
+        ...state,
+        entries: [...action.payload]
+      }
 
     default:
       return state;

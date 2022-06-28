@@ -18,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   await EntryModel.deleteMany();   //deleteMany elimina todos los datos que tenga guardados en la coleccion entries
   await EntryModel.insertMany( seedData.entries );
 
-  await db.disconect();
+  await db.disconnect();
 
   res.status(200).json({ message: 'Proceso realizado correctamente' })
 }
