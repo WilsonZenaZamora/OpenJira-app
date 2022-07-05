@@ -1,7 +1,7 @@
 import { FC, PropsWithChildren, useEffect, useReducer } from 'react';
 import { useSnackbar } from 'notistack';
 
-import { entriesApi } from '../../apis';
+import { entriesApi } from '../../newApi';
 import { Entry } from '../../interfaces';
 import { EntriesContext, entriesReducer } from './';
 
