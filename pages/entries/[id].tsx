@@ -1,4 +1,6 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, FC, useContext, useMemo, useState } from 'react';
+import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router';
 import { 
   Button,
   capitalize,
@@ -18,16 +20,29 @@ import {
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 
+import { EntriesContext } from '../../context/entries';
+import { dbEntries } from '../../database';
 import { MainLayout } from '../../components/layouts'
-import { EntryStatus } from '../../interfaces';
+import { Entry, EntryStatus } from '../../interfaces';
+import { dateFunctions } from '../../utils';
 
 const validStatus: EntryStatus[] = ['pending', 'in-progress', 'finished'];
 
-export const EntryPage = () => {
+interface Props {
+  entry: Entry
+}
 
-  const [inputValue, setInputValue] = useState('');
-  const [status, setStatus] = useState<EntryStatus>('pending');
+export const EntryPage:FC<Props>  = ({ entry }) => {
+
+  const { updateEntry, deleteEntry } = useContext(EntriesContext);
+  const router = useRouter();
+
+  const [inputValue, setInputValue] = useState( entry.description );
+  const [status, setStatus] = useState<EntryStatus>( entry.status );
   const [touched, setTouched] = useState(false);
+
+  const isNotValid = useMemo(() => inputValue.length <= 0 && touched, [inputValue, touched]);
+
 
   const onInputValueChanged = ( event: ChangeEvent<HTMLInputElement> ) => {
     setInputValue( event.target.value );
@@ -38,12 +53,26 @@ export const EntryPage = () => {
   }
 
   const onSave = () => {
-    
+    if ( inputValue.trim().length === 0 ) return;
+
+    const updatedEntry: Entry = {
+      ...entry,
+      status,
+      description: inputValue
+    } 
+
+    updateEntry( updatedEntry, true );
+    router.push('/')
+  }
+
+  const onDelete = () => {
+    deleteEntry( entry, true );
+    router.push('/')
   }
 
   return (
     
-    <MainLayout title='.... ... ....'>
+    <MainLayout title={ inputValue.substring(0,20) + '...' }>
       <Grid
         container
         justifyContent='center'
@@ -52,8 +81,8 @@ export const EntryPage = () => {
         <Grid item xs={12} sm={8} md={6}>
           <Card>
             <CardHeader
-              title={`Entry: ${ inputValue }`}
-              subheader={`Created at: .... minutes`}
+              title={`Entry: `}
+              subheader={`Created at: ${ dateFunctions.getFormatDistanceToNow( entry.createdAt ) }`}
             />
 
             <CardContent>
@@ -65,7 +94,10 @@ export const EntryPage = () => {
                 multiline
                 label='New Entry'
                 value={ inputValue }
+                onBlur={ () => setTouched(true) }
                 onChange={ onInputValueChanged }
+                helperText={ isNotValid && 'Enter a value' }
+                error={ isNotValid }
               />
 
               <FormControl>
@@ -96,6 +128,7 @@ export const EntryPage = () => {
                 variant='contained'
                 fullWidth
                 onClick={ onSave }
+                disabled={ inputValue.length <= 0 }
               >
                 Save
               </Button>
@@ -104,11 +137,13 @@ export const EntryPage = () => {
         </Grid>
       </Grid>
 
-      <IconButton sx={{
-        position:'fixed',
-        bottom: 30,
-        right: 30,
-        backgroundColor: 'red'
+      <IconButton
+        onClick={ onDelete }
+        sx={{
+          position:'fixed',
+          bottom: 30,
+          right: 30,
+          backgroundColor: 'red'
       }}>
         <DeleteOutlineOutlinedIcon />
       </IconButton>
@@ -117,5 +152,30 @@ export const EntryPage = () => {
 
   )
 }
+
+// You should use getServerSideProps when:
+// - Only if you need to pre-render a page whose data must be fetched at request time
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  // console.log(ctx.params);
+  const { id } = params as { id: string };
+
+  const entry = await dbEntries.getEntryById(id);
+
+  if ( !entry ) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      }
+    }
+  }
+
+  return {
+    props: {
+      entry
+    }
+  }
+}
+
 
 export default EntryPage

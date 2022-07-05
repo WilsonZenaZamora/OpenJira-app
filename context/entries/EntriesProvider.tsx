@@ -1,4 +1,5 @@
 import { FC, PropsWithChildren, useEffect, useReducer } from 'react';
+import { useSnackbar } from 'notistack';
 
 import { entriesApi } from '../../apis';
 import { Entry } from '../../interfaces';
@@ -16,6 +17,7 @@ const Entries_INITIAL_STATE: EntriesState = {
 export const EntriesProvider: FC<PropsWithChildren> = ({ children }) => {
 
   const [state, dispatch] = useReducer( entriesReducer, Entries_INITIAL_STATE );
+  const { enqueueSnackbar } = useSnackbar();
 
   const addNewEntry = async( description: string ) => {
 
@@ -23,10 +25,40 @@ export const EntriesProvider: FC<PropsWithChildren> = ({ children }) => {
     dispatch({ type: '[Entry] - Add-Entry', payload: data });
   }
 
-  const updateEntry = async( { _id, description, status }: Entry ) => {
+  const updateEntry = async( { _id, description, status }: Entry, showSnackbar = false ) => {
     try {
       const { data } = await entriesApi.put<Entry>(`/entries/${ _id }`, { description, status });
       dispatch({ type: '[Entry] - Entry-Updated', payload: data });
+
+      if ( showSnackbar )
+        enqueueSnackbar('Updated Entry', {
+          variant: 'success',
+          autoHideDuration: 1500,
+          anchorOrigin: {
+            vertical: 'top',
+            horizontal: 'right'
+          }
+        })
+
+    } catch (error) {
+      console.log({error});
+    }
+  }
+
+  const deleteEntry = async( entry: Entry, showSnackbar = false ) => {
+    try {
+      const { data } = await entriesApi.delete<Entry>(`/entries/${ entry._id }` );
+      dispatch({ type: '[Entry] - Entry-Deleted', payload: data });
+
+      if ( showSnackbar )
+        enqueueSnackbar('Deleted Entry', {
+          variant: 'success',
+          autoHideDuration: 1500,
+          anchorOrigin: {
+            vertical: 'top',
+            horizontal: 'right'
+          }
+        })
 
     } catch (error) {
       console.log({error});
@@ -49,6 +81,7 @@ export const EntriesProvider: FC<PropsWithChildren> = ({ children }) => {
       ...state,
       addNewEntry,
       updateEntry,
+      deleteEntry,
     }}>
       { children }
     </EntriesContext.Provider>

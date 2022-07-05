@@ -48,11 +48,11 @@ export const NewEntry = () => {
               autoFocus
               multiline
               label='New entry'
+              onChange={ onTextFieldChanged }
+              value={ inputValue }
+              onBlur={ () => setTouched(true) }
               helperText={ inputValue.length <= 0 && touched && 'Enter a value' }
               error={ inputValue.length <= 0 && touched }
-              value={ inputValue }
-              onChange={ onTextFieldChanged }
-              onBlur={ () => setTouched(true) }
             />
 
             <Box display='flex' justifyContent='space-between'>
